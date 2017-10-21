@@ -185,10 +185,7 @@ string GNB::predict(vector<double> sample)
 	for (int i=0;i < sample.size() ; ++i) {
 		prob_left *= gaussian_prob(sample[i], left_mean[i], left_stds[i]);
 	}
-	if(prob_left > maxlikelihood){
-		maxlikelihood = prob_left;
-		label = 0; // left
-	}
+
 	//cout << "Predict Left Probability:" << prob_left << endl;
 
 
@@ -196,10 +193,7 @@ string GNB::predict(vector<double> sample)
 	for (int i=0;i < sample.size() ; ++i) {
 		prob_keep *= gaussian_prob(sample[i], keep_mean[i], keep_stds[i]);
 	}
-	if(prob_keep > maxlikelihood){
-		maxlikelihood = prob_keep;
-		label = 1; // kee[]
-	}
+
 	//cout << "Predict Keep Probability:" << prob_keep << endl;
 
 
@@ -207,13 +201,35 @@ string GNB::predict(vector<double> sample)
 	for (int i=0;i < sample.size() ; ++i) {
 		prob_right *= gaussian_prob(sample[i], right_mean[i], right_stds[i]);
 	}
+
+	//cout << "Predict Right Probability:" << prob_right << endl;
+
+  //cout << "Predicting:" << possible_labels[label] << endl;
+
+	double normalizer = prob_left+prob_right+prob_keep;
+	prob_left /= normalizer;
+	prob_keep /= normalizer;
+	prob_right /= normalizer;
+
+	cout << "Predict Left Probability:" << prob_left << endl;
+	cout << "Predict Keep Probability:" << prob_keep << endl;
+	cout << "Predict Right Probability:" << prob_right << endl;
+
+
+
+	if(prob_left > maxlikelihood){
+		maxlikelihood = prob_left;
+		label = 0; // left
+	}
+	if(prob_keep > maxlikelihood){
+		maxlikelihood = prob_keep;
+		label = 1; // kee[]
+	}
 	if(prob_right > maxlikelihood){
 		maxlikelihood = prob_right;
 		label = 2; // right
 	}
-	//cout << "Predict Right Probability:" << prob_right << endl;
 
-  //cout << "Predicting:" << possible_labels[label] << endl;
 
 
 	return this->possible_labels[label];
