@@ -1,0 +1,2 @@
+c++ -std=gnu++11   main.cpp classifier.cpp
+
