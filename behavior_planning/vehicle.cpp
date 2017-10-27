@@ -136,7 +136,7 @@ vector< Vehicle::state_snapshot>  Vehicle::_trajectory_for_state(string  state_p
       {
         vector<vector<int> > new_predictions;
 
-        cout << "Processing vehicle:id" << x.first << endl;
+        cout << "Processing vehicle:id " << x.first << endl;
         cout << "Has :" << x.second.size() << "predictions" << endl;
         cout << "Removing first element" << endl;
 
@@ -156,13 +156,16 @@ vector< Vehicle::state_snapshot>  Vehicle::_trajectory_for_state(string  state_p
         //new_predictions = x.second;
 
        //new_predictions.erase(x.second.begin());
-       predictions.erase(x.first);
-       predictions.insert ( std::pair<int, vector <vector<int> > >(x.first,
-          new_predictions) );
+          //predictions.erase(x.first);
+          //predictions.swap ( std::pair<int, vector <vector<int> > >(x.first,
+          //new_predictions) );
+          
+          predictions[x.first] = new_predictions;
+          
           cout << "Now Has :" << new_predictions.size() << "predictions" << endl;
       }
 
-
+      cout << "**************************************" << endl;
       for(auto const& x : predictions)
       {
           vector<vector<int> > new_predictions;
