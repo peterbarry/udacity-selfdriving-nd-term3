@@ -11,17 +11,17 @@ class Vehicle(object):
 
   def __init__(self, lane, s, v, a):
     self.lane = lane
-    self.s = s 
+    self.s = s
     self.v = v
     self.a = a
     self.state = "CS"
 
     # The following are set when configure() is called.
     # All of them are integers.
-    self.max_acceleration = None 
-    self.target_speed = None     
-    self.lanes_available = None  
-    self.goal_lane = None        
+    self.max_acceleration = None
+    self.target_speed = None
+    self.lanes_available = None
+    self.goal_lane = None
     self.goal_s = None
 
 
@@ -31,7 +31,7 @@ class Vehicle(object):
     following values to 'self.state':
 
     "KL" - Keep Lane
-     - The vehicle will attempt to drive its target speed, unless there is 
+     - The vehicle will attempt to drive its target speed, unless there is
        traffic in front of it, in which case it will slow down.
 
     "LCL" or "LCR" - Lane Change Left / Right
@@ -43,9 +43,9 @@ class Vehicle(object):
        BEHIND itself and will adjust speed to try to get behind that vehicle.
 
     INPUTS
-    - predictions 
+    - predictions
     A dictionary. The keys are ids of other vehicles and the values are arrays
-    where each entry corresponds to the vehicle's predicted location at the 
+    where each entry corresponds to the vehicle's predicted location at the
     corresponding timestep. The FIRST element in the array gives the vehicle's
     current position. Example (showing a car with id 3 moving at 2 m/s):
 
@@ -63,7 +63,7 @@ class Vehicle(object):
     # pdb.set_trace()
     self.state = state
     # self.state = "KL" # this is an example of how you change state.
-  
+
   def _get_next_state(self, predictions):
     states = ["KL", "LCL", "LCR"]
     if  self.lane == 0:
@@ -84,8 +84,8 @@ class Vehicle(object):
   def _trajectory_for_state(self,state,predictions, horizon=5):
     # remember current state
     snapshot = self.snapshot()
-    
-    
+
+
     # pretend to be in new proposed state
     self.state = state
     trajectory = [snapshot]
@@ -123,7 +123,7 @@ class Vehicle(object):
   def configure(self, road_data):
     """
     Called by simulator before simulation begins. Sets various
-    parameters which will impact the ego vehicle. 
+    parameters which will impact the ego vehicle.
     """
     self.target_speed = road_data['speed_limit']
     self.lanes_available = road_data["num_lanes"]
@@ -131,18 +131,18 @@ class Vehicle(object):
     goal = road_data['goal']
     self.goal_lane = goal[1]
     self.goal_s = goal[0]
-          
+
   def __repr__(self):
     s = "s:    {}\n".format(self.s)
     s +="lane: {}\n".format(self.lane)
     s +="v:    {}\n".format(self.v)
     s +="a:    {}\n".format(self.a)
     return s
-      
+
   def increment(self, dt=1):
     self.s += self.v * dt
     self.v += self.a * dt
-      
+
   def state_at(self, t):
     """
     Predicts state of vehicle in t seconds (assuming constant acceleration)
@@ -157,7 +157,7 @@ class Vehicle(object):
     """
     l,   s,   v,   a = self.state_at(at_time)
     l_o, s_o, v_o, a_o = other.state_at(at_time)
-    return l == l_o and abs(s-s_o) <= L 
+    return l == l_o and abs(s-s_o) <= L
 
   def will_collide_with(self, other, timesteps):
     for t in range(timesteps+1):

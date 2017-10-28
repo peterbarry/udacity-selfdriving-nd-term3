@@ -1,2 +1,2 @@
-c++ -std=gnu++11 main.cpp road.cpp vehicle.cpp 
 
+c++ -std=gnu++11 main.cpp road.cpp vehicle.cpp cost_functions.cpp 

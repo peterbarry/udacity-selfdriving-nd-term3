@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D01033A11FA3DEC70018075D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D01033A01FA3DEC70018075D /* main.cpp */; };
+		D01033A81FA3DF120018075D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D01033A71FA3DF120018075D /* main.cpp */; };
+		D01033AA1FA3DF1E0018075D /* road.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D01033A91FA3DF1E0018075D /* road.cpp */; };
+		D01033AC1FA3DF290018075D /* vehicle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D01033AB1FA3DF290018075D /* vehicle.cpp */; };
+		D01033AE1FA4B6440018075D /* cost_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D01033AD1FA4B6440018075D /* cost_functions.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +27,10 @@
 
 /* Begin PBXFileReference section */
 		D010339D1FA3DEC70018075D /* behaviour_planning */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = behaviour_planning; sourceTree = BUILT_PRODUCTS_DIR; };
-		D01033A01FA3DEC70018075D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		D01033A71FA3DF120018075D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
+		D01033A91FA3DF1E0018075D /* road.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = road.cpp; path = ../../road.cpp; sourceTree = "<group>"; };
+		D01033AB1FA3DF290018075D /* vehicle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vehicle.cpp; path = ../../vehicle.cpp; sourceTree = "<group>"; };
+		D01033AD1FA4B6440018075D /* cost_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cost_functions.cpp; path = ../../cost_functions.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +63,10 @@
 		D010339F1FA3DEC70018075D /* behaviour_planning */ = {
 			isa = PBXGroup;
 			children = (
-				D01033A01FA3DEC70018075D /* main.cpp */,
+				D01033AD1FA4B6440018075D /* cost_functions.cpp */,
+				D01033AB1FA3DF290018075D /* vehicle.cpp */,
+				D01033A91FA3DF1E0018075D /* road.cpp */,
+				D01033A71FA3DF120018075D /* main.cpp */,
 			);
 			path = behaviour_planning;
 			sourceTree = "<group>";
@@ -119,7 +128,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D01033A11FA3DEC70018075D /* main.cpp in Sources */,
+				D01033AE1FA4B6440018075D /* cost_functions.cpp in Sources */,
+				D01033A81FA3DF120018075D /* main.cpp in Sources */,
+				D01033AC1FA3DF290018075D /* vehicle.cpp in Sources */,
+				D01033AA1FA3DF1E0018075D /* road.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +260,7 @@
 				D01033A61FA3DEC70018075D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
