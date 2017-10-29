@@ -160,6 +160,10 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+double ref_vel = 0; // mph.
+// start in lane 1, [0,1,2] are lane ids
+int lane = 1;
+
 int main() {
   uWS::Hub h;
 
@@ -211,9 +215,8 @@ int main() {
     //auto sdata = string(data).substr(0, length);
     //cout << sdata << endl;
 
-    // start in lane 1, [0,1,2] are lane ids
-    int lane = 1;
-    double ref_vel = 49.5; // mph.
+
+    //double ref_vel = 0; // mph.
 
 
     if (length && length > 2 && data[0] == '4' && data[1] == '2') {
@@ -269,9 +272,20 @@ int main() {
                 if ((check_car_s > car_s) && (check_car_s - car_s) < 30 )
                 {
                   // slow down to avoid collision..
-                  ref_vel = 29.5;
+                  //ref_vel = 29.5;
+                  too_close = true;
                 }
               }
+            }
+
+            if ( too_close)
+            {
+                ref_vel -= 0.224; // aprrox 5m/s^2
+
+            }
+            else if (ref_vel < 49.5)
+            {
+              ref_vel += 0.224; // approx 5m/s^2
             }
 
             // creaet a list of widely spaced x,y way pints evenly spaced at 30m
