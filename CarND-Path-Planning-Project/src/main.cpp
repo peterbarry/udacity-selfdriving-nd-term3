@@ -300,7 +300,7 @@ int main() {
                   // slow down to avoid collision..
                   //ref_vel = 29.5;
                   too_close = true;
-                  cout << "** TOO CLOSE" << endl;
+                  //cout << "** TOO CLOSE" << endl;
 
                 }
               }
@@ -327,7 +327,7 @@ int main() {
                     double min_distance_forward= max_s;
                     double min_distance_behind= max_s;
                     
-                    cout << "checking Lane:" << lanes_to_check[j] << endl;
+                    //cout << "checking Lane:" << lanes_to_check[j] << endl;
 
                     for (int i = 0 ; i < sensor_fusion.size(); i++)
                     {
@@ -356,18 +356,18 @@ int main() {
                           }
                       }
                     // Change to checked lane.
-                    cout  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
+                    //cout  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
 
                     if (min_distance_behind > SAFE_GAP_IN_M_BEHIND && min_distance_forward > SAFE_GAP_IN_M_FORWARD)
                     {
                         // Suggest change to lane.
-                        cout << "Changing lane to:" << check_lane  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
+                        //cout << "Changing lane to:" << check_lane  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
                         my_lane = check_lane;
                         changing_lane = true;
                     }
                     else
                     {
-                        cout << "Traffic too close cant change lane" << endl;
+                        //cout << "Traffic too close cant change lane" << endl;
                     }
                     
                 }
