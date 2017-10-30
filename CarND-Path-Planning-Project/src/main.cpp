@@ -23,6 +23,8 @@ using namespace std;
 #define SIMULATOR_STEP (0.02)
 #define MPH_TO_MPS (2.24)
 
+#define DELTA_VEL_5_MPS (0.224)
+#define DELTA_VEL_MAX (DELTA_VEL_5_MPS * 2)
 
 // for convenience
 using json = nlohmann::json;
@@ -273,6 +275,8 @@ int main() {
               car_s = end_path_s;
             }
             bool too_close = false;
+            double too_close_decleration_mul = 0.5;
+
 
             //cout << "*******************************************" << endl;
             for (int i = 0 ; i < sensor_fusion.size(); i++)
@@ -300,6 +304,9 @@ int main() {
                   // slow down to avoid collision..
                   //ref_vel = 29.5;
                   too_close = true;
+                  if ((check_car_s - car_s) < SAFE_GAP_IN_M_FORWARD/2)
+                      too_close_decleration_mul = 0.8; // close to max.
+                    
                   //cout << "** TOO CLOSE" << endl;
 
                 }
@@ -375,11 +382,11 @@ int main() {
 
             if ( too_close)
             {
-                ref_vel -= 0.224; // aprrox 5m/s^2
+                ref_vel -= DELTA_VEL_MAX * too_close_decleration_mul ;
             }
             else if (ref_vel < 49.5)
             {
-              ref_vel += 0.224; // approx 5m/s^2
+              ref_vel += DELTA_VEL_5_MPS; // approx 5m/s^2
             }
 
             // creaet a list of widely spaced x,y way pints evenly spaced at SAFE_GAP_IN_M_FORWARDm
