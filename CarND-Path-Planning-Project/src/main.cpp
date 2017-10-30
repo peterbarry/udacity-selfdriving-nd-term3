@@ -274,6 +274,9 @@ int main() {
                   // slow down to avoid collision..
                   //ref_vel = 29.5;
                   too_close = true;
+                  // Just change lane !! very crude.
+                  if (lane > 0)
+                    lane=0; // move over - dont even check safe..!!
                 }
               }
             }
