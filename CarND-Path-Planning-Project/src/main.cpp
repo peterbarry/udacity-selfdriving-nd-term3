@@ -5,12 +5,24 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <limits>
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include "spline.h"
 
 using namespace std;
+
+
+#define SAFE_GAP_IN_M_FORWARD (30)
+#define SAFE_GAP_IN_M_BEHIND (10)
+#define MAX_LANE_NUMBER (2)
+#define MIN_LANE_NUMBER (0)
+#define LANE_WIDTH (4.0)
+
+#define SIMULATOR_STEP (0.02)
+#define MPH_TO_MPS (2.24)
+
 
 // for convenience
 using json = nlohmann::json;
@@ -162,7 +174,11 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 double ref_vel = 0; // mph.
 // start in lane 1, [0,1,2] are lane ids
-int lane = 1;
+int my_lane = 1;
+// The max s value before wrapping around the track back to 0
+double max_s = 6945.554;
+
+
 
 int main() {
   uWS::Hub h;
@@ -180,8 +196,7 @@ int main() {
     //string map_file_ = "../data/highway_map.csv";
 
 
-  // The max s value before wrapping around the track back to 0
-  double max_s = 6945.554;
+
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -249,6 +264,8 @@ int main() {
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
 
+
+
             int prev_size = previous_path_x.size();
 
             if ( prev_size > 0)
@@ -257,41 +274,115 @@ int main() {
             }
             bool too_close = false;
 
+            //cout << "*******************************************" << endl;
             for (int i = 0 ; i < sensor_fusion.size(); i++)
             {
               // car is in my lane.
               float d = sensor_fusion[i][6];
-              if (d < (2+4*lane+2) && d > (2+4*lane-2) )
+              int id = sensor_fusion[i][0];
+              int other_target_lane = (int) floor( d / LANE_WIDTH);
+
+              double vx = sensor_fusion[i][3];
+              double vy = sensor_fusion[i][4];
+              double check_speed = sqrt(vx*vx+vy*vy);
+              double check_car_s = sensor_fusion[i][5];
+
+
+              //cout << "CarId:" << id << "\td:" << d << "\ts:" << check_car_s  << "\tLane:" << other_target_lane << "\tSpeed" << check_speed * MPH_TO_MPS << "mph" << endl;
+
+              if (other_target_lane == my_lane )
               {
-                double vx = sensor_fusion[i][3];
-                double vy = sensor_fusion[i][4];
-                double check_speed = sqrt(vx*vx+vy*vy);
-                double check_car_s = sensor_fusion[i][5];
+
                 // look to car in the future not now.
-                check_car_s+=((double)prev_size*0.02*check_speed);
-                if ((check_car_s > car_s) && (check_car_s - car_s) < 30 )
+                check_car_s+=((double)prev_size*SIMULATOR_STEP*check_speed);
+                if ((check_car_s > car_s) && (check_car_s - car_s) < SAFE_GAP_IN_M_FORWARD )
                 {
                   // slow down to avoid collision..
                   //ref_vel = 29.5;
                   too_close = true;
-                  // Just change lane !! very crude.
-                  if (lane > 0)
-                    lane=0; // move over - dont even check safe..!!
+                  cout << "** TOO CLOSE" << endl;
+
                 }
               }
+            }
+
+
+            // consider lane change, if we are close to vehicle ahead
+            // and we are not close to simulaor wrap point for s.
+            if (too_close && (car_s < (max_s - (SAFE_GAP_IN_M_FORWARD * 2))))
+            {
+                vector<int> lanes_to_check;
+                if (my_lane > MIN_LANE_NUMBER)
+                    lanes_to_check.push_back(my_lane-1);
+                if (my_lane < MAX_LANE_NUMBER)
+                    lanes_to_check.push_back(my_lane+1);
+
+                bool changing_lane=false;
+
+
+                for ( int j = 0 ; j < lanes_to_check.size() && ! changing_lane; j++)
+                {
+                    int check_lane = lanes_to_check[j];
+                    
+                    double min_distance_forward= max_s;
+                    double min_distance_behind= max_s;
+                    
+                    cout << "checking Lane:" << lanes_to_check[j] << endl;
+
+                    for (int i = 0 ; i < sensor_fusion.size(); i++)
+                    {
+                        float d = sensor_fusion[i][6];
+                        int sensed_lane = (int) floor( d / LANE_WIDTH );
+                        double check_car_s = sensor_fusion[i][5];
+                        double vx = sensor_fusion[i][3];
+                        double vy = sensor_fusion[i][4];
+                        double check_speed = sqrt(vx*vx+vy*vy);
+
+
+                        // Predict car in future not now..!!
+                        check_car_s+=((double)prev_size*SIMULATOR_STEP*check_speed);
+                        
+                        if ( sensed_lane == check_lane)
+                        {
+                            double delta_dist = car_s - check_car_s;
+                            if (delta_dist > 0 ) // car is behind.
+                                if (delta_dist  < min_distance_behind )
+                                    min_distance_behind = delta_dist;
+                            if (delta_dist < 0 )
+                                if ((delta_dist * -1)< min_distance_forward)
+                                    min_distance_forward = delta_dist * -1;
+                            if (delta_dist == 0 )
+                                min_distance_behind = min_distance_forward = 0;
+                          }
+                      }
+                    // Change to checked lane.
+                    cout  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
+
+                    if (min_distance_behind > SAFE_GAP_IN_M_BEHIND && min_distance_forward > SAFE_GAP_IN_M_FORWARD)
+                    {
+                        // Suggest change to lane.
+                        cout << "Changing lane to:" << check_lane  << "Ahead:" << min_distance_forward  << "Behind:" << min_distance_behind << endl;
+                        my_lane = check_lane;
+                        changing_lane = true;
+                    }
+                    else
+                    {
+                        cout << "Traffic too close cant change lane" << endl;
+                    }
+                    
+                }
             }
 
             if ( too_close)
             {
                 ref_vel -= 0.224; // aprrox 5m/s^2
-
             }
             else if (ref_vel < 49.5)
             {
               ref_vel += 0.224; // approx 5m/s^2
             }
 
-            // creaet a list of widely spaced x,y way pints evenly spaced at 30m
+            // creaet a list of widely spaced x,y way pints evenly spaced at SAFE_GAP_IN_M_FORWARDm
             std::vector<double> ptsx;
             std::vector<double> ptsy;
 
@@ -332,7 +423,7 @@ int main() {
 
             // in Frenet add evenly spaced points adheaed of startig reference.
 
-            double d_calc = 2.0 + (4.0 * (double)(lane));
+            double d_calc = 2.0 + (4.0 * (double)(my_lane));
             std::vector<double> next_wp0 = getXY(car_s+30,d_calc,map_waypoints_s, map_waypoints_x, map_waypoints_y);
             std::vector<double> next_wp1 = getXY(car_s+60,d_calc,map_waypoints_s, map_waypoints_x, map_waypoints_y);
             std::vector<double> next_wp2 = getXY(car_s+90,d_calc,map_waypoints_s, map_waypoints_x, map_waypoints_y);
@@ -379,7 +470,7 @@ int main() {
 
             for (int i =0 ; i <= 50 - previous_path_x.size();i++)
             {
-              double N = (target_dist/(0.02*ref_vel/2.24)); // 2.24 mph to m/s
+              double N = (target_dist/(SIMULATOR_STEP*ref_vel/MPH_TO_MPS)); // 2.24 mph to m/s
               double x_point = x_add_on+(target_x)/N;
               double y_point = s(x_point);
 
