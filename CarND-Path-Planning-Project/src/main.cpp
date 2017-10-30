@@ -22,6 +22,7 @@ using namespace std;
 
 #define SIMULATOR_STEP (0.02)
 #define MPH_TO_MPS (2.24)
+#define TARGET_SPEED_MPH (49.5)
 
 #define DELTA_VEL_5_MPS (0.224)
 #define DELTA_VEL_MAX (DELTA_VEL_5_MPS * 2)
@@ -384,9 +385,15 @@ int main() {
             {
                 ref_vel -= DELTA_VEL_MAX * too_close_decleration_mul ;
             }
-            else if (ref_vel < 49.5)
+            else if (ref_vel < TARGET_SPEED_MPH) // Accelerate the further away we are from 50mph, but dont want to overrun.
             {
-              ref_vel += DELTA_VEL_5_MPS; // approx 5m/s^2
+                double speed_delta = TARGET_SPEED_MPH - speed_delta;
+                double speed_accel  = speed_delta / TARGET_SPEED_MPH;
+                
+              ref_vel += DELTA_VEL_MAX * speed_accel ; // ratio of max.
+              if (ref_vel > TARGET_SPEED_MPH)
+                  ref_vel = TARGET_SPEED_MPH;
+                
             }
 
             // creaet a list of widely spaced x,y way pints evenly spaced at SAFE_GAP_IN_M_FORWARDm
