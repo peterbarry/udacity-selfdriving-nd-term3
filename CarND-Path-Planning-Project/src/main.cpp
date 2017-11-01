@@ -15,7 +15,7 @@ using namespace std;
 
 
 #define SAFE_GAP_IN_M_FORWARD (30)
-#define SAFE_GAP_IN_M_BEHIND (10)
+#define SAFE_GAP_IN_M_BEHIND (30)
 #define MAX_LANE_NUMBER (2)
 #define MIN_LANE_NUMBER (0)
 #define LANE_WIDTH (4.0)
