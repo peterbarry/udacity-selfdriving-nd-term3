@@ -184,7 +184,7 @@ tests.test_train_nn(train_nn)
 
 
 def run():
-    num_classes = 2
+    num_classes = 3
     image_shape = (160, 576)
     data_dir = './data'
     runs_dir = './runs'
