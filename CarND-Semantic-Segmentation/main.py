@@ -8,8 +8,8 @@ import project_tests as tests
 
 # Some test setup variables.
 
-run_test = False
-use_checkpoint = True
+run_test = True
+use_checkpoint = False
 
 
 # Check TensorFlow Version
@@ -216,8 +216,8 @@ def run():
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        num_epochs = 50
-        batch_size = 5
+        num_epochs = 100
+        batch_size = 10
 
         # TF placeholders
         correct_label = tf.placeholder(tf.int32, [None, None, None, num_classes], name='correct_label')
