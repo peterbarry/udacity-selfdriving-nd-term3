@@ -247,10 +247,24 @@ def run():
             save_path = model_saver.save(sess, "./model")
             print("Model saved in file: %s" % save_path)
         else:
+            # saver = tf.train.import_meta_graph('./model/model.meta')
             sess.run(tf.global_variables_initializer())
 
             saver = tf.train.Saver()
+            # sess = tf.Session()
+
+            # ckpt = tf.train.get_checkpoint_state('./model')
             saver.restore(sess, './model')
+
+            # saver = tf.train.import_meta_graph('./model.meta')
+            # saver.restore(sess, tf.train.latest_checkpoint('./'))
+
+            # graph = tf.get_default_graph()
+            # correct_label = graph.get_tensor_by_name("correct_label:0")
+            # logits = graph.get_tensor_by_name("logits:0")
+            # keep_prob = graph.get_tensor_by_name("keep_prob:0")
+
+        # TODO: Save inference data using helper.save_inference_samples
             helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video
