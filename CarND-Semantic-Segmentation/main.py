@@ -6,6 +6,12 @@ from distutils.version import LooseVersion
 import project_tests as tests
 
 
+# Some test setup variables.
+
+run_test = False
+use_checkpoint = True
+
+
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
 print('TensorFlow Version: {}'.format(tf.__version__))
@@ -51,8 +57,9 @@ def load_vgg(sess, vgg_path):
 
     return input1, keep, l3, l4, l7
 
-print("About to test load vgg\n")
-tests.test_load_vgg(load_vgg, tf)
+if ( run_test == True):
+    print("About to test load vgg\n")
+    tests.test_load_vgg(load_vgg, tf)
 
 
 def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
@@ -119,9 +126,9 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
 
     return output
 
-print("About to test_layers - !!\n")
-
-tests.test_layers(layers)
+if ( run_test == True):
+    print("About to test_layers - !!\n")
+    tests.test_layers(layers)
 
 
 def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
@@ -144,9 +151,9 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 
     return logits, train_op , _entropy_loss
 
-print("About to test_optimize\n")
-
-tests.test_optimize(optimize)
+if ( run_test == True):
+    print("About to test_optimize\n")
+    tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
@@ -178,9 +185,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             print("Loss: = {:.4f}".format(loss_val))
     pass
 
-print("About to test_train_nn\n")
-
-tests.test_train_nn(train_nn)
+if ( run_test == True):
+    print("About to test_train_nn\n")
+    tests.test_train_nn(train_nn)
 
 
 def run():
@@ -211,7 +218,6 @@ def run():
 
         num_epochs = 50
         batch_size = 5
-        use_checkpoint = True
 
         # TF placeholders
         correct_label = tf.placeholder(tf.int32, [None, None, None, num_classes], name='correct_label')
@@ -244,13 +250,15 @@ def run():
                        keep_prob,
                        learning_rate)
 
-            save_path = model_saver.save(sess, "./model")
+            save_path = model_saver.save(sess, "./model/model")
             print("Model saved in file: %s" % save_path)
         else:
             sess.run(tf.global_variables_initializer())
 
             saver = tf.train.Saver()
+            print("Loading saved model for interence\n")
             saver.restore(sess, './model')
+            print("Loading complete\n")
             helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video

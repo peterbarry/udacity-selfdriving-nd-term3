@@ -128,15 +128,33 @@ def gen_test_output(sess, logits, keep_prob, image_pl, data_folder, image_shape)
             [tf.nn.softmax(logits)],
             {keep_prob: 1.0, image_pl: [image]})
 
-        im_softmax = im_softmax[0][:, 1].reshape(image_shape[0], image_shape[1]) # label 0
-        segmentation = (im_softmax > 0.5).reshape(image_shape[0], image_shape[1], 1) # label 0
+        im_softmax0 = im_softmax[0][:, 0].reshape(image_shape[0], image_shape[1]) # label - background
+        segmentation0 = (im_softmax0 > 0.5).reshape(image_shape[0], image_shape[1], 1) # background
+
+        im_softmax1 = im_softmax[0][:, 1].reshape(image_shape[0], image_shape[1]) # label - road surface
+        segmentation1 = (im_softmax1 > 0.5).reshape(image_shape[0], image_shape[1], 1)
+
+        im_softmax2 = im_softmax[0][:, 2].reshape(image_shape[0], image_shape[1]) #  secondary road surface
+        segmentation2 = (im_softmax2 > 0.5).reshape(image_shape[0], image_shape[1], 1) # secondary road surface
 
 
-        mask = np.dot(segmentation, np.array([[0, 255, 0, 127]]))
-        mask = scipy.misc.toimage(mask, mode="RGBA")
+
+
+        mask0 = np.dot(segmentation0, np.array([[255, 255, 0, 50]]))
+        mask0 = scipy.misc.toimage(mask0, mode="RGBA")
+
+        mask1 = np.dot(segmentation1, np.array([[0, 255, 0, 127]]))
+        mask1 = scipy.misc.toimage(mask1, mode="RGBA")
+
+        mask2 = np.dot(segmentation2, np.array([[0, 0, 255, 200]]))
+        mask2 = scipy.misc.toimage(mask2, mode="RGBA")
+
+
         street_im = scipy.misc.toimage(image)
-        street_im.paste(mask, box=None, mask=mask)
 
+        street_im.paste(mask0, box=None, mask=mask0)
+        street_im.paste(mask1, box=None, mask=mask1)
+        street_im.paste(mask2, box=None, mask=mask2)
 
 
         yield os.path.basename(image_file), np.array(street_im)
